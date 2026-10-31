@@ -1,7 +1,7 @@
 # Design System & Direction (DESIGN.md) : Finora
 
 **Aplikasi**: Finora (Personal Finance Assistant)  
-**Karakter**: Minimalis, Ringan, Fungsional, Tenang, Mobile-First  
+**Karakter**: Minimalis, Ringan, Fungsional, Tenang, Responsif  
 **Framework**: Tailwind CSS v4, DaisyUI, Alpine.js  
 
 ---
@@ -12,13 +12,13 @@ Finora dirancang untuk menghilangkan kecemasan finansial (financial anxiety). De
 
 Finora mengutamakan:
 1. **Kejelasan Hierarki Data**: Angka nominal, dompet sumber/tujuan, dan tanggal transaksi terbaca instan dalam sekali lirik.
-2. **Kenyamanan Satu Tangan (Thumb-Friendly)**: Navigasi utama, tombol aksi cepat, dan formulir input modal berada di area jangkauan jempol (bottom viewport).
+2. **Kenyamanan Akses & Responsif**: Navigasi dan aksi cepat mudah dijangkau satu tangan pada layar ponsel (bottom navigation dan bottom sheet), serta bertransisi menjadi tata letak multi-kolom yang proporsional dan terstruktur pada tablet serta desktop.
 3. **Ketenangan Visual**: Warna netral yang matang dengan aksen semantik yang tegas dan konsisten.
 
 ### Skala Dial Antislop
 - **ENERGY: 2** (Refined, fokus, tenang, percaya diri sebagai utilitas finansial harian).
 - **RHYTHM: 2** (Variasi terukur antara kartu ringkasan saldo, deretan dompet, dan daftar mutasi vertikal dengan jarak napas yang proporsional).
-- **MOTION: 1** (Transisi tajam dan responsif berdurasi 150-200ms untuk modal bottom-sheet, tab, dan toggle dark mode; tanpa efek melayang atau animasi dekoratif yang memperlambat alur kerja).
+- **MOTION: 1** (Transisi tajam dan responsif berdurasi 150-200ms untuk modal bottom-sheet/dialog, tab, dan toggle dark mode; tanpa efek melayang atau animasi dekoratif yang memperlambat alur kerja).
 
 ---
 
@@ -71,24 +71,36 @@ Finora menggunakan tumpukan font sistem modern yang tidak memerlukan download ek
 
 ---
 
-## 4. Pola Tata Letak Mobile-First (Layout Principles)
+## 4. Pola Tata Letak Responsif (Responsive Layout Principles)
 
-### 4.1. Lebar Kontainer (Viewport Strategy)
-- Pada perangkat ponsel: Kontainer mengisi `100vw` dengan padding horizontal `px-4`.
-- Pada perangkat tablet dan desktop: Kontainer aplikasi dibatasi dengan `max-w-md mx-auto` dan dibingkai bayangan halus untuk mensimulasikan penggunaan aplikasi ponsel yang fokus, terpusat, dan nyaman tanpa membuat elemen melebar secara canggung.
+Finora mengadopsi tata letak responsif adaptif yang menyesuaikan hierarki informasi secara proporsional di setiap ukuran layar (ponsel, tablet, desktop) tanpa membatasi layar lebar menjadi tampilan ponsel tiruan:
 
-### 4.2. Bottom Navigation Bar (Bilah Navigasi Bawah)
-Navigasi bawah tetap terlihat (`fixed bottom-0 left-0 right-0 max-w-md mx-auto`) dengan ketinggian 64px, latar belakang solid sesuai tema dengan batas tepi atas tipis:
-1. **Beranda (Dashboard)**: Ikon Rumah.
-2. **Dompet (Wallets)**: Ikon Dompet / Kartu.
-3. **Pinjaman (Loans)**: Ikon Tangan / Dokumen Pinjaman.
-4. **Pengaturan (Settings)**: Ikon Roda Gigi.
+### 4.1. Strategi Kontainer & Breakpoints (Viewport Strategy)
+- **Ponsel (< 768px / Mobile)**:
+  - Kontainer satu kolom penuh (`w-full px-4 pb-24 pt-4`).
+  - Elemen mengalir vertikal untuk kemudahan navigasi satu tangan saat scrolling.
+  - Menggunakan bilah navigasi bawah (bottom navigation bar) tetap.
+- **Tablet (768px - 1024px / breakpoint md)**:
+  - Kontainer adaptif dua kolom (`max-w-4xl mx-auto px-6 py-6`).
+  - Ringkasan saldo dan aksi cepat bersisian atau berjejer secara proporsional.
+  - Kartu dompet disajikan dalam format grid dua kolom.
+- **Desktop (>= 1024px / breakpoint lg & xl)**:
+  - Kontainer kerja penuh yang terstruktur (`max-w-7xl mx-auto px-8 py-8`).
+  - Tata letak multi-kolom yang produktif: Sidebar navigasi di sisi kiri, kolom utama untuk kartu saldo dan aksi transaksi, serta kolom kanan untuk ringkasan dompet dan pengingat aktif.
+  - Ruang layar yang luas dimanfaatkan untuk visibilitas data mutasi tanpa scrolling berlebihan.
 
-Di tengah bilah navigasi, terdapat tombol cepat **Tambah (+)** yang sedikit lebih menonjol dengan warna aksen primer untuk membuka lembar aksi cepat (Quick Transaction Sheet).
+### 4.2. Sistem Navigasi Adaptif (Adaptive Navigation)
+- **Pada Layar Seluler (< md)**:
+  - Menggunakan bilah navigasi bawah tetap (`fixed bottom-0 left-0 right-0 z-30 h-16 bg-base-100/95 backdrop-blur border-t border-base-300`).
+  - Tombol cepat **Tambah (+)** di tengah dengan warna aksen primer untuk akses instan ke modal transaksi.
+  - Empat menu navigasi: Beranda (Dashboard), Dompet (Wallets), Pinjaman (Loans), Pengaturan (Settings).
+- **Pada Layar Tablet & Desktop (>= md)**:
+  - Bilah navigasi bawah disembunyikan (`hidden md:flex`).
+  - Bertransisi menjadi Sidebar samping atau Navbar atas yang elegan, lengkap dengan label teks jelas, ikon representatif, status aktif indikatif, dan tombol aksi "Tambah Transaksi" yang terintegrasi.
 
-### 4.3. Area Sentuh (Touch Targets)
-- Setiap tombol, tautan navigasi, dan kontrol form memiliki tinggi minimal **44px** (`min-h-[44px] min-w-[44px]`).
-- Jarak antar tombol interaktif minimal **8px** untuk mencegah salah pencet saat satu tangan bergerak.
+### 4.3. Area Sentuh & Ergonomi (Touch Targets & Ergonomics)
+- Setiap tombol, tautan navigasi, dan kontrol form memiliki tinggi minimal **44px** (`min-h-[44px] min-w-[44px]`) di semua mode layar.
+- Jarak antar elemen interaktif minimal **8px** untuk mencegah salah klik pada perangkat layar sentuh maupun pointer mouse.
 
 ---
 
@@ -114,9 +126,10 @@ Di tengah bilah navigasi, terdapat tombol cepat **Tambah (+)** yang sedikit lebi
   - Bagian tengah: Judul transaksi (nama sumber / pengeluaran / penyesuaian reaktivasi), nama dompet, dan tanggal/jam.
   - Sisi kanan: Nominal (+ / -) dengan format mata uang yang tegas.
 
-### 5.4. Bottom Sheet Modal & Dialog Interaktif (DaisyUI Modal)
-- Untuk formulir input transaksi dan konfigurasi di ponsel, modal muncul dari bagian bawah layar (`modal modal-bottom sm:modal-middle`).
-- Dilengkapi drag handle indikator kecil di atas modal.
+### 5.4. Modal & Dialog Interaktif Responsif (DaisyUI Modal)
+- Formulir input transaksi dan pengaturan menggunakan kelas adaptif DaisyUI (`modal modal-bottom sm:modal-middle`):
+  - **Pada Layar Ponsel**: Tampil sebagai Bottom Sheet yang meluncur dari bawah layar dengan drag handle indikator kecil, mudah dijangkau jempol.
+  - **Pada Layar Tablet & Desktop**: Bertransisi otomatis menjadi dialog modal terpusat (*centered modal*) dengan lebar terukur (`sm:max-w-lg mx-auto`) yang fokus dan rapi.
 - **Modal Tambah Dompet**:
   - Input Nama Dompet & Jenis (Bank / E-Money / Cash).
   - Input **Saldo Awal** langsung dengan prefix `Rp` dan format angka tabular besar, sehingga saldo awal langsung tercatat saat dompet dibuat.

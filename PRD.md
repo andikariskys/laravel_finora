@@ -9,7 +9,7 @@
 
 ## 1. Ringkasan Eksekutif & Latar Belakang
 
-**Finora** adalah aplikasi manajemen keuangan pribadi yang dirancang dengan pendekatan *mobile-first*, sederhana, dan minimalis. Finora berfokus pada kemudahan pencatatan finansial sehari-hari tanpa kerumitan akuntansi konvensional. 
+**Finora** adalah aplikasi manajemen keuangan pribadi yang dirancang dengan pendekatan responsif (*responsive*), sederhana, dan minimalis. Finora berfokus pada kemudahan pencatatan finansial sehari-hari tanpa kerumitan akuntansi konvensional, memberikan kenyamanan penggunaan yang setara di ponsel pintar, tablet, maupun komputer desktop. 
 
 Pengguna modern umumnya memiliki uang yang tersebar di berbagai rekening bank, dompet digital (GoPay, OVO, ShopeePay), dan uang tunai fisik. Finora hadir untuk memberikan visibilitas penuh terhadap total kekayaan likuid, perpindahan saldo antar dompet (termasuk biaya admin/top-up), pencatatan hutang-piutang rekan, serta otomatisasi biaya langganan berulang bulanan.
 
@@ -18,7 +18,7 @@ Pengguna modern umumnya memiliki uang yang tersebar di berbagai rekening bank, d
 ## 2. Nilai Utama & Prinsip Produk
 
 1. **Sederhana & Ringan**: Alur pencatatan cepat (kurang dari 5 detik untuk mencatat pengeluaran/pemasukan baru).
-2. **Mobile First**: Dioptimalkan penuh untuk pengoperasian satu tangan pada layar ponsel pintar dengan navigasi bawah (bottom navigation) dan area sentuh minimal 44px.
+2. **Desain Responsif (Responsive Design)**: Antarmuka adaptif di seluruh dimensi layar. Dioptimalkan untuk navigasi satu tangan di layar ponsel pintar (bottom navigation) serta memanfaatkan tata letak multi-kolom yang ergonomis di tablet dan layar desktop, dengan area sentuh minimal 44px.
 3. **Multi-Wallet Fleksibel**: Bebas membuat, menamai, dan mengkategorikan dompet/rekening sesuai gaya hidup pengguna.
 4. **Transparansi Transaksi Riil**: Mencatat biaya transfer/top up secara eksplisit agar saldo dompet selalu sinkron dengan kondisi di dunia nyata.
 5. **Rollover Siklus Bulanan yang Rapi**: Riwayat keuangan masa lalu tetap tersimpan utuh untuk analisis historis, sementara ringkasan dashboard me-reset fokus ke bulan berjalan dengan sisa saldo bulan lalu sebagai saldo awal.
@@ -126,7 +126,7 @@ Pengguna modern umumnya memiliki uang yang tersebar di berbagai rekening bank, d
   - Pada tanggal 1 (atau tanggal cutoff pilihan), perhitungan ringkasan pengeluaran dan pemasukan di dashboard di-reset ke angka 0 untuk periode bulan baru.
   - Sisa saldo kumulatif dari seluruh wallet pada penutupan bulan lalu dihitung dan disajikan sebagai **Saldo Awal Bulan Ini (Opening Balance)**.
 
-### 4.9. Halaman Dashboard Utama (Mobile-First)
+### 4.9. Halaman Dashboard Utama (Responsif)
 - **Header Finora**: Avatar/Inisial pengguna, nama user, toggle mode gelap/terang, dan tombol notifikasi jatuh tempo.
 - **Hero Card - Total Saldo Keseluruhan**:
   - Menampilkan total gabungan seluruh saldo wallet aktif.
@@ -340,7 +340,7 @@ Ketika pengguna mengaktifkan kembali dompet yang sebelumnya berstatus `is_active
 
 ## 8. Standar Non-Fungsional & Aksesibilitas
 1. **WCAG 2.1 AA Compliance**: Seluruh teks memiliki rasio kontras minimal 4.5:1 terhadap warna latar belakang.
-2. **Performa Tanggap**: Waktu muat halaman pertama di perangkat seluler < 800ms.
+2. **Performa Tanggap**: Waktu muat halaman pertama di berbagai perangkat (seluler, tablet, maupun desktop) < 800ms.
 3. **Resilience**: Setiap komponen data memiliki 3 state wajib:
    - *Empty State*: Tampilan ramah dan ilustratif jika data transaksi/dompet masih kosong.
    - *Loading State*: Indikator pemrosesan saat submit form.
