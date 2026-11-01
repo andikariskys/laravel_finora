@@ -48,6 +48,8 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "schedule": "php artisan schedule:work",
+        "process-recurring": "php artisan finora:process-recurring",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

@@ -7,6 +7,7 @@ use App\Models\Loan;
 use App\Models\RecurringRule;
 use App\Models\Transaction;
 use App\Models\Wallet;
+use App\Services\RecurringPaymentService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,10 +19,13 @@ class DashboardController extends Controller
     /**
      * Tampilkan antarmuka utama ringkasan finansial Finora.
      */
-    public function index(Request $request): View
+    public function index(Request $request, RecurringPaymentService $recurringService): View
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
+
+        // 0. On-Access Trigger: Eksekusi otomatis tagihan rutin yang telah jatuh tempo
+        $recurringService->processForUser($user);
 
         // 1. Ambil HANYA dompet aktif untuk dashboard dengan urutan: Uang Tunai, Bank, Dompet Digital
         $typePriority = [
