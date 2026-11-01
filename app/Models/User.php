@@ -22,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'monthly_reset_day',
+        'theme_preference',
     ];
 
     /**
@@ -44,6 +46,37 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'monthly_reset_day' => 'integer',
         ];
+    }
+
+    public function wallets()
+    {
+        return $this->hasMany(Wallet::class);
+    }
+
+    public function activeWallets()
+    {
+        return $this->hasMany(Wallet::class)->where('is_active', true);
+    }
+
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
+
+    public function recurringRules()
+    {
+        return $this->hasMany(RecurringRule::class);
     }
 }
