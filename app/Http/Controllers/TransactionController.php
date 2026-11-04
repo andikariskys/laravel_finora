@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\Wallet;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,7 @@ class TransactionController extends Controller
     /**
      * Tampilkan formulir pencatatan dan daftar mutasi pemasukan/pengeluaran.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -30,9 +31,19 @@ class TransactionController extends Controller
 
         if ($typeFilter && in_array($typeFilter, ['income', 'expense'])) {
             $query->where('type', $typeFilter);
+        } else {
+            $query->whereIn('type', ['income', 'expense']);
+            $typeFilter = null;
         }
 
         $transactions = $query->paginate(20)->withQueryString();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'html' => view('transactions.partials.list', compact('transactions'))->render(),
+                'type' => $typeFilter,
+            ]);
+        }
 
         $wallets = $user->wallets()
             ->where('is_active', true)

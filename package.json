@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "alpinejs": "^3.17.5",
-        "daisyui": "^5.7.50"
+        "daisyui": "^5.7.50",
+        "jquery": "^4.0.0"
     }
 }

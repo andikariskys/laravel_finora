@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Loan;
 use App\Models\RecurringRule;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,6 +22,106 @@ class FinoraPagesTest extends TestCase
         $response = $this->actingAs($user)->get('/mutasi');
         $response->assertStatus(200);
         $response->assertSee('Mutasi Pemasukan');
+    }
+
+    public function test_mutasi_semua_only_displays_income_and_expense_mutations(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::create([
+            'user_id' => $user->id,
+            'name' => 'BCA Utama',
+            'type' => 'bank',
+            'balance' => 5000000,
+            'is_active' => true,
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'income',
+            'amount' => 5000000,
+            'description' => 'Gaji Pokok Kantor',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'expense',
+            'amount' => 25000,
+            'description' => 'Makan Siang Soto',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'initial_balance',
+            'amount' => 1000000,
+            'description' => 'Saldo Awal Dompet: BCA Utama',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'balance_adjustment',
+            'amount' => 50000,
+            'description' => 'Penyesuaian Saldo: BCA Utama',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'transfer_out',
+            'amount' => 200000,
+            'description' => 'Transfer Saldo ke Gopay',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'transfer_in',
+            'amount' => 200000,
+            'description' => 'Transfer Saldo dari BCA Utama',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'recurring_expense',
+            'amount' => 60000,
+            'description' => 'Pemotongan otomatis tagihan rutin: Spotify Premium',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        // 1. Opsi Semua (Default)
+        $response = $this->actingAs($user)->get('/mutasi');
+        $response->assertStatus(200);
+        $response->assertSee('Gaji Pokok Kantor');
+        $response->assertSee('Makan Siang Soto');
+        $response->assertDontSee('Saldo Awal Dompet: BCA Utama');
+        $response->assertDontSee('Penyesuaian Saldo: BCA Utama');
+        $response->assertDontSee('Transfer Saldo ke Gopay');
+        $response->assertDontSee('Transfer Saldo dari BCA Utama');
+        $response->assertDontSee('Pemotongan otomatis tagihan rutin: Spotify Premium');
+
+        // 2. Filter Pemasukan
+        $responseIncome = $this->actingAs($user)->get('/mutasi?type=income');
+        $responseIncome->assertStatus(200);
+        $responseIncome->assertSee('Gaji Pokok Kantor');
+        $responseIncome->assertDontSee('Makan Siang Soto');
+        $responseIncome->assertDontSee('Saldo Awal Dompet: BCA Utama');
+
+        // 3. Filter Pengeluaran
+        $responseExpense = $this->actingAs($user)->get('/mutasi?type=expense');
+        $responseExpense->assertStatus(200);
+        $responseExpense->assertSee('Makan Siang Soto');
+        $responseExpense->assertDontSee('Gaji Pokok Kantor');
+        $responseExpense->assertDontSee('Pemotongan otomatis tagihan rutin: Spotify Premium');
     }
 
     public function test_can_record_transaction_with_past_date(): void
@@ -372,5 +473,173 @@ class FinoraPagesTest extends TestCase
         $response = $this->actingAs($user)->delete("/tagihan/{$rule->id}");
         $response->assertRedirect(route('recurring.index'));
         $this->assertDatabaseMissing('recurring_rules', ['id' => $rule->id]);
+    }
+
+    public function test_mutasi_ajax_returns_json_html_for_spa(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::create([
+            'user_id' => $user->id,
+            'name' => 'BCA',
+            'type' => 'bank',
+            'balance' => 1000000,
+            'is_active' => true,
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'income',
+            'amount' => 500000,
+            'description' => 'Freelance Design',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'expense',
+            'amount' => 50000,
+            'description' => 'Beli Kuota Data',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        // AJAX request Semua
+        $responseAll = $this->actingAs($user)->getJson('/mutasi');
+        $responseAll->assertStatus(200);
+        $responseAll->assertJsonStructure(['html', 'type']);
+        $this->assertStringContainsString('Freelance Design', $responseAll->json('html'));
+        $this->assertStringContainsString('Beli Kuota Data', $responseAll->json('html'));
+
+        // AJAX request Pemasukan
+        $responseIncome = $this->actingAs($user)->getJson('/mutasi?type=income');
+        $responseIncome->assertStatus(200);
+        $this->assertStringContainsString('Freelance Design', $responseIncome->json('html'));
+        $this->assertStringNotContainsString('Beli Kuota Data', $responseIncome->json('html'));
+
+        // AJAX request Pengeluaran
+        $responseExpense = $this->actingAs($user)->getJson('/mutasi?type=expense');
+        $responseExpense->assertStatus(200);
+        $this->assertStringContainsString('Beli Kuota Data', $responseExpense->json('html'));
+        $this->assertStringNotContainsString('Freelance Design', $responseExpense->json('html'));
+    }
+
+    public function test_history_pdf_can_be_viewed_and_downloaded(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::create([
+            'user_id' => $user->id,
+            'name' => 'BCA',
+            'type' => 'bank',
+            'balance' => 1000000,
+            'is_active' => true,
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'income',
+            'amount' => 2000000,
+            'description' => 'Penjualan Barang',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        // 1. Pratinjau PDF Semua Riwayat (Inline Stream)
+        $responseViewAll = $this->actingAs($user)->get('/riwayat/pdf?period=all&action=view');
+        $responseViewAll->assertStatus(200);
+        $this->assertEquals('application/pdf', $responseViewAll->headers->get('Content-Type'));
+        $this->assertStringContainsString('inline', $responseViewAll->headers->get('Content-Disposition'));
+
+        // 2. Unduh PDF Semua Riwayat (Attachment Download)
+        $responseDownloadAll = $this->actingAs($user)->get('/riwayat/pdf?period=all&action=download');
+        $responseDownloadAll->assertStatus(200);
+        $this->assertEquals('application/pdf', $responseDownloadAll->headers->get('Content-Type'));
+        $this->assertStringContainsString('attachment', $responseDownloadAll->headers->get('Content-Disposition'));
+
+        // 3. Pratinjau PDF Periode Spesifik Bulan Tertentu
+        $periodKey = now()->format('Y-m');
+        $responsePeriod = $this->actingAs($user)->get("/riwayat/pdf?period={$periodKey}&action=view");
+        $responsePeriod->assertStatus(200);
+        $this->assertEquals('application/pdf', $responsePeriod->headers->get('Content-Type'));
+    }
+
+    public function test_history_pdf_filters_inactive_wallets_correctly(): void
+    {
+        $user = User::factory()->create();
+
+        // 1. Dompet aktif
+        $walletActive = Wallet::create([
+            'user_id' => $user->id,
+            'name' => 'BCA Aktif',
+            'type' => 'bank',
+            'balance' => 1000000,
+            'is_active' => true,
+        ]);
+
+        // 2. Dompet dinonaktifkan, tetapi MEMILIKI transaksi bulan ini
+        $walletInactiveWithTx = Wallet::create([
+            'user_id' => $user->id,
+            'name' => 'GoPay Nonaktif Berisi Tx',
+            'type' => 'ewallet',
+            'balance' => 50000,
+            'is_active' => false,
+        ]);
+
+        // 3. Dompet dinonaktifkan, dan TIDAK MEMILIKI transaksi bulan ini
+        $walletInactiveWithoutTx = Wallet::create([
+            'user_id' => $user->id,
+            'name' => 'Mandiri Nonaktif Kosong',
+            'type' => 'bank',
+            'balance' => 0,
+            'is_active' => false,
+        ]);
+
+        $periodKey = now()->format('Y-m');
+
+        // Catat transaksi pada Dompet 2 di bulan ini
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $walletInactiveWithTx->id,
+            'type' => 'expense',
+            'amount' => 20000,
+            'description' => 'Beli Pulsa Sebelum Dinonaktifkan',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        // Endpoint PDF dapat diakses
+        $response = $this->actingAs($user)->get("/riwayat/pdf?period={$periodKey}&action=view");
+        $response->assertStatus(200);
+
+        // Uji penyaringan dompet
+        $transactions = $user->transactions()
+            ->whereBetween('transaction_date', [
+                now()->startOfMonth()->toDateString(),
+                now()->endOfMonth()->toDateString()
+            ])
+            ->get();
+
+        $wallets = $user->wallets()->get()->filter(function ($w) use ($transactions) {
+            return $w->is_active || $transactions->contains('wallet_id', $w->id);
+        })->values();
+
+        $this->assertTrue($wallets->contains('id', $walletActive->id));
+        $this->assertTrue($wallets->contains('id', $walletInactiveWithTx->id));
+        $this->assertFalse($wallets->contains('id', $walletInactiveWithoutTx->id));
+
+        // Uji rendering baris total saldo dompet pada view PDF
+        $totalWalletBalance = (float) $wallets->sum('balance');
+        $view = view('history.pdf', [
+            'user' => $user,
+            'transactions' => $transactions,
+            'wallets' => $wallets,
+            'totalWalletBalance' => $totalWalletBalance,
+            'periodLabel' => 'November 2026',
+            'totalIncome' => 0,
+            'totalExpense' => 20000,
+            'netCashflow' => -20000,
+        ])->render();
+
+        $this->assertStringContainsString('Total Saldo Semua Dompet', $view);
+        $this->assertStringContainsString('1.050.000', $view);
     }
 }

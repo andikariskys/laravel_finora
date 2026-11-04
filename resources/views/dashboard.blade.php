@@ -327,10 +327,11 @@
                 </p>
             </div>
             <a 
-                href="{{ route('transactions.index') }}" 
+                href="{{ route('history.pdf', ['period' => now()->format('Y-m'), 'action' => 'view']) }}" 
+                target="_blank"
                 class="btn btn-ghost btn-sm text-primary"
             >
-                Lihat Semua Mutasi &rarr;
+                Lihat Semua Mutasi (PDF) &rarr;
             </a>
         </div>
 

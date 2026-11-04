@@ -230,5 +230,7 @@
             <span class="dock-label">Riwayat</span>
         </a>
     </nav>
+
+    @stack('scripts')
 </body>
 </html>

@@ -13,7 +13,7 @@
 - **Ringkasan Hutang & Piutang**: Memantau total nominal piutang (uang di luar) dan kewajiban hutang yang belum lunas langsung dari kartu ringkasan.
 - **Shortcut Aksi Cepat (*Quick Actions*)**: Modal cepat untuk mencatat transaksi baru tanpa perlu berpindah halaman.
 - **Pengaturan Tanggal Cutoff Bulanan**: Pengguna dapat menentukan tanggal reset buku bulanan (tanggal 1 s.d. 28) menyesuaikan siklus gajian.
-- **Pratinjau Aktivitas**: Daftar 3 transaksi mutasi terbaru dan 4 tagihan rutin aktif.
+- **Pratinjau Aktivitas & Dokumen PDF Bulan Ini**: Daftar 3 transaksi mutasi terbaru, 4 tagihan rutin aktif, serta tautan cepat untuk membuka pratinjau dokumen PDF mutasi bulan berjalan di tab baru.
 
 ### 2. Manajemen Multi-Wallet & Rekening
 - **Ragam Tipe Akun**: Mendukung kategori Uang Tunai (`cash`), Rekening Bank (`bank`), Dompet Digital (`ewallet`), dan Investasi (`investment`).
@@ -23,10 +23,13 @@
 - **Transfer Antar Dompet & Biaya Admin**: Perpindahan dana antar dompet (misal: Rekening Bank ke E-Money). Mendukung input biaya admin transfer/top-up yang otomatis dipotong dari dompet asal dan dicatat sebagai transaksi berpasangan (`transfer_out` dan `transfer_in`).
 - **Riwayat Aktivitas Dompet**: Log khusus untuk memantau aktivitas transfer, penyesuaian saldo, dan saldo awal pembukaan akun.
 
-### 3. Pencatatan Mutasi Transaksi
+### 3. Pencatatan Mutasi Transaksi (SPA berbasis jQuery)
 - **Pemasukan & Pengeluaran**: Pencatatan transaksi dengan atribut dompet sumber, kategori, nominal, biaya admin tambahan, pihak sumber dana, dan deskripsi.
 - **Tanggal Transaksi Fleksibel (*Backdating*)**: Bebas memilih tanggal transaksi di masa lampau untuk mencatat pengeluaran yang terlewat.
-- **Filter & Paginasi**: Filter mutasi berdasarkan tipe (Semua, Pemasukan, Pengeluaran) lengkap dengan sistem halaman (20 item per halaman).
+- **Filter Tab SPA (Single Page Application)**: Berpindah antar opsi filter (**Semua**, **Pemasukan**, **Pengeluaran**) bekerja secara instan tanpa reload halaman menggunakan jQuery AJAX.
+- **Filter "Semua" yang Bersih**: Opsi filter "Semua" secara presisi hanya memuat mutasi pemasukan dan pengeluaran murni, mengabaikan log aktivitas internal dompet (*initial balance, balance adjustment, transfer*) serta potongan tagihan rutin.
+- **Sinkronisasi Riwayat Browser**: Mendukung `history.pushState` dan navigasi tombol Back/Forward browser dengan URL parameter tetap sinkron.
+- **Paginasi Asinkron**: Paginasi data mutasi dimuat secara dinamis via AJAX (20 transaksi per halaman).
 
 ### 4. Manajemen Hutang & Piutang (*Loans*)
 - **Piutang (*Loan Given*)**: Mencatat dana yang dipinjamkan ke pihak lain. Saldo dompet sumber otomatis terpotong saat data disimpan dan dicatat sebagai mutasi pengeluaran terkait.
@@ -47,10 +50,16 @@
   - **On-Access Trigger**: Tagihan yang telah jatuh tempo otomatis diproses dan memotong saldo saat pengguna membuka halaman Dashboard.
   - **Background Scheduler**: Perintah konsol artisan dan daemon penjadwalan untuk pemrosesan rutin di latar belakang.
 
-### 6. Laporan & Riwayat Keuangan Bulanan
+### 6. Laporan & Riwayat Keuangan Bulanan + Ekspor Dokumen PDF
 - **Ikhtisar 6 Bulan Terakhir**: Rangkuman pergerakan kas bulanan (Total Pemasukan, Total Pengeluaran, Arus Kas Bersih, dan Frekuensi Transaksi).
 - **Rollover Saldo Transparan**: Data masa lalu tidak dihapus saat pergantian bulan; sisa saldo akhir bulan sebelumnya otomatis menjadi saldo awal bulan berjalan.
-- **Ekspor Dokumen**: Tombol aksi pratinjau dan pencetakan/unduhan laporan bulanan dalam format dokumen siap cetak.
+- **Pratinjau & Unduh PDF Lengkap**: Opsi untuk membuka pratinjau dokumen PDF (*inline view*) di tab baru peramban agar pengguna dapat membaca atau mengunduh mandiri, serta tombol unduhan langsung (*direct download*).
+- **Cakupan Laporan Fleksibel**: Mendukung ekspor seluruh riwayat transaksi akun (*all-time history*) maupun laporan terfokus untuk periode bulan tertentu.
+- **Tabel Informasi Dompet & Rekening**:
+  - Menyajikan nama dompet, jenis dompet, status keaktifan, frekuensi transaksi pada periode laporan, dan saldo berjalan.
+  - **Penyaringan Cerdas Dompet Non-Aktif**: Dompet yang telah dinonaktifkan hanya disertakan jika memiliki catatan transaksi pada periode laporan tersebut; jika tidak ada aktivitas, dompet non-aktif dieliminasi dari dokumen PDF.
+  - **Baris Total Saldo Semua Dompet**: Menampilkan akumulasi total saldo dari seluruh dompet yang relevan di bagian bawah tabel dompet.
+- **Rincian Transaksi Komprehensif**: Tabel detail transaksi memuat nomor urut, tanggal transaksi, nama dompet, lencana tipe mutasi, keterangan/sumber dana, nominal, dan biaya admin.
 
 ### 7. Autentikasi Pengguna & Akun Pengujian
 - **Registrasi & Keamanan Kata Sandi**: Validasi kata sandi ketat (minimal 8 karakter, kombinasi huruf besar, huruf kecil, angka, dan simbol).
@@ -69,7 +78,8 @@
 ## Tumpukan Teknologi (*Tech Stack*)
 
 - **Backend**: Laravel 12 (PHP 8.2+)
-- **Frontend**: Blade Templates, Tailwind CSS v4, DaisyUI v5, Alpine.js
+- **PDF Generator**: DomPDF (`barryvdh/laravel-dompdf`)
+- **Frontend**: Blade Templates, Tailwind CSS v4, DaisyUI v5, Alpine.js, jQuery
 - **Database**: SQLite (default lingkungan lokal) / MySQL / PostgreSQL
 - **Bundler Aset**: Vite
 

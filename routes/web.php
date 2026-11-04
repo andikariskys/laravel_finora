@@ -53,4 +53,5 @@ Route::middleware('auth')->group(function () {
 
     // 6. Halaman Riwayat Laporan Keuangan Bulanan
     Route::get('/riwayat', [HistoryController::class, 'index'])->name('history.index');
+    Route::get('/riwayat/pdf', [HistoryController::class, 'exportPdf'])->name('history.pdf');
 });

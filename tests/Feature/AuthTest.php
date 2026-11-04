@@ -177,6 +177,7 @@ class AuthTest extends TestCase
         $response->assertSee('BCA Utama');
         $response->assertSee('8.450.000');
         $response->assertSee('Gaji Bulanan PT Digital Media');
+        $response->assertSee(e(route('history.pdf', ['period' => now()->format('Y-m'), 'action' => 'view'])), false);
     }
 
     public function test_guest_is_redirected_from_dashboard(): void
